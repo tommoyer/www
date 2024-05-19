@@ -1,4 +1,4 @@
-baseURL = 'http://localhost/'
+baseURL = 'https://thomasmoyer.org/'
 languageCode = 'en-us'
 title = "Tom Moyer's Site"
 theme = 'archie'
