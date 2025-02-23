@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from flask import Flask, request, jsonify
+import pprint
 
 
 app = Flask(__name__)  # Standard Flask app
@@ -14,7 +15,7 @@ def hello_world():
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    print("Received webhook data:", type(data))
+    pprint.pp(data)
     return jsonify({'message': 'Webhook received successfully'}), 200
 
 
