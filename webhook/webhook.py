@@ -14,7 +14,7 @@ def hello_world():
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    print("Received webhook data:", data)
+    print("Received webhook data:", type(data))
     return jsonify({'message': 'Webhook received successfully'}), 200
 
 
