@@ -16,6 +16,7 @@ def hello_world():
 def webhook():
     data = request.json
     pprint.pp(data)
+    # run hugo build
     return jsonify({'message': 'Webhook received successfully'}), 200
 
 
