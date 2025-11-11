@@ -1,6 +1,6 @@
 # ---- builder ----
 # Alpine, extended
-FROM docker.io/hugomods/hugo:ext-alpine-v0.152.2 AS builder
+FROM ghcr.io/gohugoio/hugo:v0.152.2 AS builder
 WORKDIR /src
 COPY . .
 # set your baseURL if needed: hugo --minify --baseURL https://example.com
