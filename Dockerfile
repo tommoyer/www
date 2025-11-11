@@ -1,12 +1,13 @@
 # ---- builder ----
-FROM klakegg/hugo:0.135.0-ext-alpine AS builder
+# Alpine, extended
+FROM docker.io/hugomods/hugo:ext-alpine-v0.152.2 AS builder
 WORKDIR /src
 COPY . .
 # set your baseURL if needed: hugo --minify --baseURL https://example.com
 RUN hugo --minify
 
 # ---- web ----
-FROM caddy:2.8-alpine
+FROM caddy:2.10-alpine
 # Serve static files from /usr/share/caddy
 COPY --from=builder /src/public /usr/share/caddy
 # Basic production Caddyfile; Traefik will still be your edge proxy.
