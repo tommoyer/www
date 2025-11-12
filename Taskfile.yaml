@@ -1,15 +1,29 @@
-version: "3"
+version: '3'
+
+vars:
+  IMAGE_NAME: tommoyer/www
+  LOCAL_TAG: '{{.IMAGE_NAME}}:local'
+  PORT: '{{default "8080" .PORT}}'
 
 tasks:
-  dev:
-    desc: Run Hugo dev server (live reload)
+  build:prod:
+    desc: Build the production Docker image.
     cmds:
-      - docker compose --profile dev up --build
+      - docker build -t {{.IMAGE_NAME}} .
+
+  build:local:
+    desc: Build a Docker image configured for local previews.
+    vars:
+      BASE_URL: '{{default (printf "http://localhost:%s" .PORT) .BASE_URL}}'
+    cmds:
+      - docker build \
+          --build-arg HUGO_BASEURL={{.BASE_URL}} \
+          --build-arg HUGO_ENVIRONMENT=development \
+          -t {{.LOCAL_TAG}} .
+
   preview:
-    desc: Build and run production-like container locally
+    desc: Build (if needed) and run the local preview container.
+    deps:
+      - build:local
     cmds:
-      - docker compose --profile preview up --build
-  clean:
-    desc: Stop and remove containers
-    cmds:
-      - docker compose down -v
+      - docker run --rm -p {{.PORT}}:8080 {{.LOCAL_TAG}}
