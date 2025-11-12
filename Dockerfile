@@ -3,8 +3,13 @@
 FROM ghcr.io/gohugoio/hugo:v0.152.2 AS builder
 WORKDIR /src
 COPY . .
-# set your baseURL if needed: hugo --minify --baseURL https://example.com
-RUN hugo --minify
+
+# Allow the Hugo build to be configured at build time so the generated site can
+# be previewed locally with the correct baseURL.
+ARG HUGO_BASEURL=https://thomasmoyer.org/
+ARG HUGO_ENVIRONMENT=production
+ENV HUGO_ENVIRONMENT=${HUGO_ENVIRONMENT}
+RUN hugo --minify --environment "${HUGO_ENVIRONMENT}" --baseURL "${HUGO_BASEURL}"
 
 # ---- web ----
 FROM caddy:2.10-alpine
