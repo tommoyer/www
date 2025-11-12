@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1.7
+
 # ---- builder ----
-# Alpine, extended
 FROM ghcr.io/gohugoio/hugo:v0.152.2 AS builder
 WORKDIR /src
 COPY . .
@@ -12,11 +13,8 @@ ENV HUGO_ENVIRONMENT=${HUGO_ENVIRONMENT}
 RUN hugo --minify --environment "${HUGO_ENVIRONMENT}" --baseURL "${HUGO_BASEURL}"
 
 # ---- web ----
-FROM caddy:2.10-alpine
-# Serve static files from /usr/share/caddy
+FROM caddy:2.10-alpine AS web
 COPY --from=builder /src/public/ /usr/share/caddy/
-# Basic production Caddyfile; Traefik will still be your edge proxy.
-# We just serve static content on 8080 for Traefik to forward to.
 RUN printf ":8080\nroot * /usr/share/caddy\nfile_server\n" > /etc/caddy/Caddyfile
 ENV PORT=8080
 EXPOSE 8080

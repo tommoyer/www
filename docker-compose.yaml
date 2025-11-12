@@ -1,5 +1,3 @@
-version: "3.9"
-
 # ----- DEV: live reload via Hugo server -----
 services:
   hugo:
@@ -12,6 +10,7 @@ services:
       --buildFuture
       --disableFastRender
       --gc
+      --environment development
     working_dir: /src
     volumes:
       - .:/src
@@ -24,6 +23,11 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile      # your multi-stage Dockerfile (Hugo -> Caddy/Nginx)
+      args:
+        HUGO_ENV: preview
+        # Optional: set CACHE_BUST to force a rebuild when needed, e.g.
+        # `CACHE_BUST=$(date +%s) docker compose --profile preview build`
+        # CACHE_BUST: "${CACHE_BUST}"
     environment:
       - PORT=8080
     ports:
