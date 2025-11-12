@@ -1,25 +1,11 @@
-name: Build & Publish Hugo Image
+name: Build & Publish Hugo Image (dated tags)
 
 on:
   push:
     branches: [ main ]
-    # Only rebuild when content/theme/config changes (adjust as you like)
-    paths:
-      - 'content/**'
-      - 'layouts/**'
-      - 'static/**'
-      - 'assets/**'
-      - 'themes/**'
-      - 'config*'
-      - 'hugo*'
-      - 'Dockerfile'
-      - '.github/workflows/publish.yml'
-#   # Optional: publish on tags for release images
-#   tags:
-#     - 'v*.*.*'
 
 concurrency:
-  group: publish-${{ github.ref }}
+  group: date-www-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -27,27 +13,54 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write      # required to push to GHCR
+      packages: write
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}          # e.g. ghcr.io/owner/repo
-      # Optional Hugo baseURL; override per-env if you want
-      HUGO_BASEURL: https://www.moyer.wtf/
+      IMAGE_NAME: tommoyer/www
+      HUGO_BASEURL: https://example.com
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=sha,format=long
-            type=ref,event=tag
+      - name: Install gh & jq
+        uses: cli/cli-action@v2
+      - name: Ensure jq present
+        run: |
+          command -v jq >/dev/null || sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Set up QEMU (optional multi-arch)
+      - name: Determine date tag and next sequence
+        id: seq
+        env:
+          OWNER: tommoyer
+          REPO: www
+        run: |
+          set -euo pipefail
+          TAG_DATE="$(TZ=America/New_York date +%F)"   # e.g. 2025-11-11
+          PREFIX="www-${TAG_DATE}-"
+
+          PAGE=1
+          COUNT=0
+          while true; do
+            JSON="$(gh api -H 'Accept: application/vnd.github+json' \
+              "/users/${OWNER}/packages/container/${REPO}/versions?per_page=100&page=${PAGE}" \
+              || true)"
+            [ -z "${JSON}" ] && break
+            TAGS=$(echo "${JSON}" | jq -r '.[].metadata.container.tags[]?' 2>/dev/null || true)
+            [ -z "${TAGS}" ] && break
+            MATCHES=$(printf "%s\n" $TAGS | grep -c "^${PREFIX}" || true)
+            COUNT=$((COUNT + MATCHES))
+            LEN=$(echo "${JSON}" | jq 'length')
+            [ "${LEN}" -lt 100 ] && break
+            PAGE=$((PAGE+1))
+          done
+
+          NEXT=$((COUNT + 1))
+          echo "date=${TAG_DATE}"       >> $GITHUB_OUTPUT
+          echo "next=${NEXT}"           >> $GITHUB_OUTPUT
+          echo "date_tag=${PREFIX}${NEXT}" >> $GITHUB_OUTPUT
+          echo "Using tag: ${PREFIX}${NEXT}"
+
+      - name: Set up QEMU (optional)
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Buildx
@@ -60,17 +73,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push
+      - name: Build & push (dated tag + latest + sha)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
-          # Set to linux/amd64 only if you don't need multi-arch
           platforms: linux/amd64
           build-args: |
             HUGO_BASEURL=${{ env.HUGO_BASEURL }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.seq.outputs.date_tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
