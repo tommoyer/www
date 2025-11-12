@@ -6,20 +6,12 @@ vars:
   PORT: '{{default "8080" .PORT}}'
 
 tasks:
-  build:prod:
-    desc: Build the production Docker image.
-    cmds:
-      - docker build -t {{.IMAGE_NAME}} .
-
-  build:local:
+  build:
     desc: Build a Docker image configured for local previews.
     vars:
       BASE_URL: '{{default (printf "http://localhost:%s" .PORT) .BASE_URL}}'
     cmds:
-      - docker build \
-          --build-arg HUGO_BASEURL={{.BASE_URL}} \
-          --build-arg HUGO_ENVIRONMENT=development \
-          -t {{.LOCAL_TAG}} .
+      - docker build --build-arg HUGO_BASEURL={{.BASE_URL}} --build-arg HUGO_ENVIRONMENT=development -t {{.LOCAL_TAG}} .
 
   preview:
     desc: Build (if needed) and run the local preview container.
