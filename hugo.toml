@@ -61,3 +61,11 @@ weight = 4
 [services]
   [services.disqus]
     shortname = 'thomasmoyer-org'
+
+# Environment-specific overrides
+# These values apply when running `hugo --environment <name>` or when HUGO_ENV/HUGO_ENVIRONMENT is set.
+[environments]
+  [environments.development]
+    baseURL = 'http://localhost:8080/'
+  [environments.preview]
+    baseURL = 'http://localhost:8080/'

@@ -1,0 +1,36 @@
+# ----- DEV: live reload via Hugo server -----
+services:
+  hugo:
+    image: ghcr.io/gohugoio/hugo:v0.152.2
+    command: >
+      hugo server
+      --bind 0.0.0.0
+      --baseURL http://localhost:8080
+      --buildDrafts
+      --buildFuture
+      --disableFastRender
+      --gc
+      --environment development
+    working_dir: /src
+    volumes:
+      - .:/src
+    ports:
+      - "8080:8080"
+    profiles: ["dev"]
+
+# ----- PROD PREVIEW: build your real image and serve it exactly like prod -----
+  site:
+    build:
+      context: .
+      dockerfile: ./Dockerfile      # your multi-stage Dockerfile (Hugo -> Caddy/Nginx)
+      args:
+        HUGO_ENV: preview
+        # Optional: set CACHE_BUST to force a rebuild when needed, e.g.
+        # `CACHE_BUST=$(date +%s) docker compose --profile preview build`
+        # CACHE_BUST: "${CACHE_BUST}"
+    environment:
+      - PORT=8080
+    ports:
+      - "8080:8080"
+    read_only: true
+    profiles: ["preview"]

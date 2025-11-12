@@ -1,25 +1,11 @@
-name: Build & Publish Hugo Image
+name: Build & Publish Hugo Image (dated tags)
 
 on:
   push:
     branches: [ main ]
-    # Only rebuild when content/theme/config changes (adjust as you like)
-    paths:
-      - 'content/**'
-      - 'layouts/**'
-      - 'static/**'
-      - 'assets/**'
-      - 'themes/**'
-      - 'config*'
-      - 'hugo*'
-      - 'Dockerfile'
-      - '.github/workflows/publish.yml'
-#   # Optional: publish on tags for release images
-#   tags:
-#     - 'v*.*.*'
 
 concurrency:
-  group: publish-${{ github.ref }}
+  group: date-www-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -27,12 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write      # required to push to GHCR
+      packages: write
     env:
       REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}          # e.g. ghcr.io/owner/repo
-      # Optional Hugo baseURL; override per-env if you want
-      HUGO_BASEURL: https://www.moyer.wtf/
+      IMAGE_NAME: tommoyer/www
+      HUGO_BASEURL: https://example.com
     steps:
       - name: Checkout
         uses: actions/checkout@v4
