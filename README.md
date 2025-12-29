@@ -9,7 +9,7 @@ before deploying it to production.
 
 The Docker build exposes two build arguments:
 
-- `HUGO_BASEURL` (default: `https://thomasmoyer.org/`)
+- `HUGO_BASEURL` (default: `https://moyer.wtf/`)
 - `HUGO_ENVIRONMENT` (default: `production`)
 
 For production builds you can continue using the defaults:
