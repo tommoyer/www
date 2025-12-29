@@ -7,7 +7,7 @@ COPY . .
 
 # Allow the Hugo build to be configured at build time so the generated site can
 # be previewed locally with the correct baseURL.
-ARG HUGO_BASEURL=https://moyer.wtf/
+ARG HUGO_BASEURL=https://thomasmoyer.org/
 ARG HUGO_ENVIRONMENT=production
 ENV HUGO_ENVIRONMENT=${HUGO_ENVIRONMENT}
 RUN hugo --minify --environment "${HUGO_ENVIRONMENT}" --baseURL "${HUGO_BASEURL}"

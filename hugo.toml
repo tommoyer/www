@@ -1,4 +1,4 @@
-baseURL = 'https://moyer.wtf/'
+baseURL = 'https://thomasmoyer.org/'
 languageCode = 'en-us'
 title = "Tom Moyer's Site"
 theme = 'archie'
@@ -60,7 +60,7 @@ weight = 4
 
 [services]
   [services.disqus]
-    shortname = 'moyer-wtf'
+    shortname = 'thomasmoyer.org'
 
 # Environment-specific overrides
 # These values apply when running `hugo --environment <name>` or when HUGO_ENV/HUGO_ENVIRONMENT is set.
