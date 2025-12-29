@@ -46,7 +46,7 @@ jobs:
             --build-arg HUGO_BASEURL=${{ env.HUGO_BASEURL }} \
             --tag "${{ steps.meta.outputs.image }}:latest" \
             --tag "${{ steps.meta.outputs.image }}:${GITHUB_SHA}" \
-	    --no-cache \
+            --no-cache \
             .
 
       - name: Push tags
