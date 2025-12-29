@@ -1,7 +1,7 @@
 # Hugo Site Docker Image
 
 This repository builds a static site using [Hugo](https://gohugo.io/) and
-serves it with [Caddy](https://caddyserver.com/). The Docker image supports
+serves it with [Nginx](https://nginx.org/). The Docker image supports
 configurable Hugo build options so you can preview the generated site locally
 before deploying it to production.
 

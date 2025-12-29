@@ -22,14 +22,12 @@ services:
   site:
     build:
       context: .
-      dockerfile: ./Dockerfile      # your multi-stage Dockerfile (Hugo -> Caddy/Nginx)
+      dockerfile: ./Dockerfile      # your multi-stage Dockerfile (Hugo -> Nginx)
       args:
         HUGO_ENV: preview
         # Optional: set CACHE_BUST to force a rebuild when needed, e.g.
         # `CACHE_BUST=$(date +%s) docker compose --profile preview build`
         # CACHE_BUST: "${CACHE_BUST}"
-    environment:
-      - PORT=8080
     ports:
       - "8080:8080"
     read_only: true
